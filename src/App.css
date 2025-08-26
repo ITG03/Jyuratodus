@@ -1,0 +1,9 @@
+/* Minimalist helpers */
+.section-title {
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.App-link { 
+  color: var(--accent); 
+}
