@@ -20,6 +20,16 @@ export async function parseExcelFile(file) {
       ),
       date: row[headerMap.date] || row['Date'] || row['Datetime'] || '',
       truckId: row[headerMap.truck] || row['Truck'] || row['Truck No'] || row['Truck ID'] || '',
+      // Revenue fields
+      amountDue: parseFloat(row['Amount Due'] || row[headerMap.amountDue] || 0),
+      gvmFine: parseFloat(row['GVM Fine'] || row[headerMap.gvmFine] || 0),
+      d1Fine: parseFloat(row['D1 Fine'] || row[headerMap.d1Fine] || 0),
+      d2Fine: parseFloat(row['D2 Fine'] || row[headerMap.d2Fine] || 0),
+      d3Fine: parseFloat(row['D3 Fine'] || row[headerMap.d3Fine] || 0),
+      d4Fine: parseFloat(row['D4 Fine'] || row[headerMap.d4Fine] || 0),
+      awkwardLoadFine: parseFloat(row['Awkward Load Fine'] || row[headerMap.awkwardLoadFine] || 0),
+      amountDueDriver: parseFloat(row['Amount Due Driver'] || row[headerMap.amountDueDriver] || 0),
+      totalRevenue: calculateTotalRevenue(row, headerMap),
       _raw: row,
     };
   });
@@ -42,7 +52,29 @@ function buildHeaderMap(sample) {
     impounded: find('in detention', 'detention', 'impound', 'seized', 'held'),
     date: find('date', 'time'),
     truck: find('truck', 'vehicle', 'plate'),
+    // Revenue field mappings
+    amountDue: find('amount due', 'total due', 'amount owed', 'total owed'),
+    gvmFine: find('gvm fine', 'gross vehicle mass fine'),
+    d1Fine: find('d1 fine', 'd1fine'),
+    d2Fine: find('d2 fine', 'd2fine'),
+    d3Fine: find('d3 fine', 'd3fine'),
+    d4Fine: find('d4 fine', 'd4fine'),
+    awkwardLoadFine: find('awkward load fine', 'awkward fine'),
+    amountDueDriver: find('amount due driver', 'driver amount', 'driver fine'),
   };
+}
+
+function calculateTotalRevenue(row, headerMap) {
+  const amountDue = parseFloat(row['Amount Due'] || row[headerMap.amountDue] || 0);
+  const gvmFine = parseFloat(row['GVM Fine'] || row[headerMap.gvmFine] || 0);
+  const d1Fine = parseFloat(row['D1 Fine'] || row[headerMap.d1Fine] || 0);
+  const d2Fine = parseFloat(row['D2 Fine'] || row[headerMap.d2Fine] || 0);
+  const d3Fine = parseFloat(row['D3 Fine'] || row[headerMap.d3Fine] || 0);
+  const d4Fine = parseFloat(row['D4 Fine'] || row[headerMap.d4Fine] || 0);
+  const awkwardLoadFine = parseFloat(row['Awkward Load Fine'] || row[headerMap.awkwardLoadFine] || 0);
+  const amountDueDriver = parseFloat(row['Amount Due Driver'] || row[headerMap.amountDueDriver] || 0);
+  
+  return amountDue + gvmFine + d1Fine + d2Fine + d3Fine + d4Fine + awkwardLoadFine + amountDueDriver;
 }
 
 function normalizeBool(value) {

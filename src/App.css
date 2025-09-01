@@ -1,9 +1,16 @@
-/* Minimalist helpers */
+/* Minimalist helpers + themed sync */
 .section-title {
-  font-weight: 600;
+  font-weight: 900;
   margin-bottom: 1.5rem;
+  color: var(--card-foreground);
 }
 
 .App-link { 
-  color: var(--accent); 
+  color: var(--accent);
+}
+
+/* Optional: keep bootstrap cards consistent */
+.card {
+  border-color: var(--border);
+  border-radius: var(--radius);
 }

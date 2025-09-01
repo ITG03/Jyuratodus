@@ -303,9 +303,19 @@ class WeighbridgeDB {
     const transaction = this.db.transaction(['excelData'], 'readwrite');
     const store = transaction.objectStore('excelData');
     
+    // Calculate revenue totals
+    const totalRevenue = data.reduce((sum, row) => sum + (row.totalRevenue || 0), 0);
+    const totalFines = data.reduce((sum, row) => 
+      sum + (row.gvmFine || 0) + (row.d1Fine || 0) + (row.d2Fine || 0) + 
+      (row.d3Fine || 0) + (row.d4Fine || 0) + (row.awkwardLoadFine || 0), 0
+    );
+    
     const excelRecord = {
       data: data,
-      uploadDate: new Date().toISOString()
+      uploadDate: new Date().toISOString(),
+      rowCount: data.length,
+      totalRevenue,
+      totalFines
     };
 
     return new Promise((resolve, reject) => {

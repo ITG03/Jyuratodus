@@ -114,104 +114,191 @@ export default function Upload() {
   }
 
   return (
-    <div>
-      <div className="section-title">Upload Excel File</div>
-      
-      {showSuccess && (
-        <Alert variant="success" dismissible onClose={() => setShowSuccess(false)}>
-          File uploaded successfully! {dbInitialized ? 'Data saved to database.' : 'Data saved to session.'}
-        </Alert>
-      )}
-      
-      {showError && (
-        <Alert variant="danger" dismissible onClose={() => setShowError(false)}>
-          {errorMessage}
-        </Alert>
-      )}
+    <div className="upload-container">
+      {/* Status Messages */}
+      <div className="status-messages mb-4">
+        {showSuccess && (
+          <Alert variant="success" dismissible onClose={() => setShowSuccess(false)} className="status-alert success-alert">
+            <div className="alert-content">
+              <span className="alert-icon">✅</span>
+              <div>
+                <strong>Success!</strong> File uploaded successfully! 
+                {dbInitialized ? ' Data saved to database.' : ' Data saved to session.'}
+              </div>
+            </div>
+          </Alert>
+        )}
+        
+        {showError && (
+          <Alert variant="danger" dismissible onClose={() => setShowError(false)} className="status-alert error-alert">
+            <div className="alert-content">
+              <span className="alert-icon">❌</span>
+              <div>
+                <strong>Error:</strong> {errorMessage}
+              </div>
+            </div>
+          </Alert>
+        )}
 
-      {duplicateSummary && (
-        <Alert variant="info" className="mb-3">
-          <div className="fw-semibold mb-2">Excel Data Analysis:</div>
-          <div className="row g-3">
-            <div className="col-6 col-md-3">
-              <div className="text-muted small">Total Rows</div>
-              <div className="fw-semibold">{duplicateSummary.totalNameOccurrences}</div>
+        {!dbInitialized && (
+          <Alert variant="info" className="status-alert info-alert">
+            <div className="alert-content">
+              <span className="alert-icon">⏳</span>
+              <div>
+                <strong>Initializing...</strong> Please wait while the database initializes.
+              </div>
             </div>
-            <div className="col-6 col-md-3">
-              <div className="text-muted small">Unique Names</div>
-              <div className="fw-semibold">{duplicateSummary.totalUniqueNames}</div>
-            </div>
-            <div className="col-6 col-md-3">
-              <div className="text-muted small">Duplicate Names</div>
-              <div className="fw-semibold">{duplicateSummary.duplicateNames.length}</div>
-            </div>
-            <div className="col-6 col-md-3">
-              <div className="text-muted small">Database Entries</div>
-              <div className="fw-semibold">{duplicateSummary.totalUniqueNames}</div>
-            </div>
+          </Alert>
+        )}
+      </div>
+
+      {/* File Upload Card */}
+      <div className="upload-card modern-card mb-4">
+        <div className="card-header-icon">
+          <div className="icon-circle">
+            <span className="upload-icon">📎</span>
           </div>
-          {duplicateSummary.hasDuplicates && (
-            <div className="mt-3">
-              <div className="fw-semibold mb-2">Names with Multiple Entries:</div>
-              <div className="d-flex flex-wrap gap-2">
-                {duplicateSummary.duplicateNames.slice(0, 10).map((item, index) => (
-                  <span key={index} className="badge bg-warning text-dark">
-                    {item.name} ({item.count}x)
-                  </span>
-                ))}
-                {duplicateSummary.duplicateNames.length > 10 && (
-                  <span className="badge bg-secondary">
-                    +{duplicateSummary.duplicateNames.length - 10} more
-                  </span>
-                )}
+          <div className="header-content">
+            <h3 className="card-title-upload">File Upload</h3>
+            <p className="card-description">Choose an Excel file to upload and process</p>
+          </div>
+        </div>
+
+        <div className="upload-form">
+          <Form.Group className="file-input-group">
+            <Form.Label className="file-label">
+              <span className="label-icon">📁</span>
+              Select Excel File
+            </Form.Label>
+            <div className="file-input-wrapper">
+              <Form.Control
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={onFileChange}
+                disabled={uploading}
+                className="file-input-modern"
+              />
+              <div className="file-input-help">
+                <span className="help-icon">ℹ️</span>
+                Supported formats: .xlsx, .xls
               </div>
-              <div className="text-muted small mt-2">
-                <strong>Note:</strong> Duplicate names in Excel are automatically consolidated into single database entries.
+            </div>
+          </Form.Group>
+
+          {uploading && (
+            <div className="upload-progress-container">
+              <div className="progress-header">
+                <span className="progress-icon">⏳</span>
+                <span className="progress-label">
+                  {uploadProgress < 100 ? 'Processing file...' : 'Upload complete!'}
+                </span>
+                <span className="progress-percentage">{uploadProgress}%</span>
               </div>
+              <ProgressBar 
+                now={uploadProgress} 
+                className="progress-bar-modern"
+                variant="primary"
+              />
             </div>
           )}
-        </Alert>
-      )}
 
-      <Form.Group className="mb-3">
-        <Form.Label>Select Excel File</Form.Label>
-        <Form.Control
-          type="file"
-          accept=".xlsx,.xls"
-          onChange={onFileChange}
-          disabled={uploading}
-        />
-        <div className="text-muted small mt-2">
-          Supported formats: .xlsx, .xls
-        </div>
-      </Form.Group>
-
-      {uploading && (
-        <div className="mb-3">
-          <ProgressBar 
-            now={uploadProgress} 
-            label={`${uploadProgress}%`}
-            className="mb-2"
-          />
-          <div className="text-muted small">
-            {uploadProgress < 100 ? 'Processing file...' : 'Upload complete!'}
+          <div className="upload-actions">
+            <Button
+              className="btn-upload-modern"
+              onClick={handleUpload}
+              disabled={!file || uploading || !dbInitialized}
+              size="lg"
+            >
+              <span className="btn-icon">
+                {uploading ? '⏳' : '🚀'}
+              </span>
+              {uploading ? 'Processing...' : 'Upload & Process'}
+            </Button>
+            
+            {file && !uploading && (
+              <div className="selected-file-info">
+                <span className="file-icon">📄</span>
+                <span className="file-name">{file.name}</span>
+                <span className="file-size">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+              </div>
+            )}
           </div>
         </div>
-      )}
+      </div>
 
-      <Button
-        className="btn-primary"
-        onClick={handleUpload}
-        disabled={!file || uploading || !dbInitialized}
-      >
-        {uploading ? 'Uploading...' : 'Upload & Process'}
-      </Button>
+      {/* Data Analysis Results */}
+      {duplicateSummary && (
+        <div className="analysis-card modern-card">
+          <div className="card-header-analysis">
+            <div className="analysis-icon-wrapper">
+              <span className="analysis-icon">📊</span>
+            </div>
+            <div>
+              <h4 className="analysis-title">Data Analysis Results</h4>
+              <p className="analysis-description">Overview of your uploaded data</p>
+            </div>
+          </div>
 
-      {!dbInitialized && (
-        <div className="mt-3">
-          <Alert variant="info">
-            <small>Initializing database... Please wait a moment before uploading.</small>
-          </Alert>
+          <div className="analysis-metrics">
+            <div className="metrics-grid-modern">
+              <div className="metric-card-modern">
+                <div className="metric-icon">📝</div>
+                <div className="metric-content">
+                  <div className="metric-value">{duplicateSummary.totalNameOccurrences}</div>
+                  <div className="metric-label">Total Rows</div>
+                </div>
+              </div>
+              
+              <div className="metric-card-modern">
+                <div className="metric-icon">👤</div>
+                <div className="metric-content">
+                  <div className="metric-value">{duplicateSummary.totalUniqueNames}</div>
+                  <div className="metric-label">Unique Names</div>
+                </div>
+              </div>
+              
+              <div className="metric-card-modern">
+                <div className="metric-icon">⚠️</div>
+                <div className="metric-content">
+                  <div className="metric-value">{duplicateSummary.duplicateNames.length}</div>
+                  <div className="metric-label">Duplicate Names</div>
+                </div>
+              </div>
+              
+              <div className="metric-card-modern">
+                <div className="metric-icon">💾</div>
+                <div className="metric-content">
+                  <div className="metric-value">{duplicateSummary.totalUniqueNames}</div>
+                  <div className="metric-label">Database Entries</div>
+                </div>
+              </div>
+            </div>
+
+            {duplicateSummary.hasDuplicates && (
+              <div className="duplicates-section">
+                <div className="duplicates-header">
+                  <span className="duplicates-icon">🔄</span>
+                  <strong>Names with Multiple Entries</strong>
+                </div>
+                <div className="duplicates-tags">
+                  {duplicateSummary.duplicateNames.slice(0, 10).map((item, index) => (
+                    <span key={index} className="duplicate-badge">
+                      {item.name} <span className="count-badge">({item.count}x)</span>
+                    </span>
+                  ))}
+                  {duplicateSummary.duplicateNames.length > 10 && (
+                    <span className="more-badge">
+                      +{duplicateSummary.duplicateNames.length - 10} more
+                    </span>
+                  )}
+                </div>
+                <div className="duplicates-note">
+                  <span className="note-icon">💡</span>
+                  <strong>Note:</strong> Duplicate names in Excel are automatically consolidated into single database entries.
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
