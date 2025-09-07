@@ -52,8 +52,4 @@
   "devDependencies": {
     "fake-indexeddb": "^6.2.2"
   }
-  ,
-  "dependencies": {
-    "pg": "^8.11.0"
-  }
 }
