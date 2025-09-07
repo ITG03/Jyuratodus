@@ -1,15 +1,6 @@
 {
   "version": 2,
   "functions": {
-    "api/**/*.js": { "runtime": "nodejs20.x" },
-    "vercel/api/**/*.js": { "runtime": "nodejs20.x" }
-  },
-
-  "routes": [
-    { "src": "/api/analytics/(.*)", "dest": "api/analytics/$1.js" },
-    { "src": "/api/records/(.*)", "dest": "api/records/$1.js" },
-    { "src": "/api/refs/people/(.*)", "dest": "api/refs/people/$1.js" },
-    { "src": "/api/refs/(.*)", "dest": "api/refs/$1.js" },
-    { "src": "/api/(.*)", "dest": "api/$1.js" }
-  ]
+    "api/**/*.js": { "runtime": "nodejs20.x" }
+  }
 }
