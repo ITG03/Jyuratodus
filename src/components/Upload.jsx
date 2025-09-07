@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, Form, Alert, ProgressBar } from 'react-bootstrap';
 import { useApp } from '../context';
 import { parseExcelFile } from '../excel';
-import { FaCheckCircle, FaTimesCircle, FaInfoCircle, FaHourglassHalf, FaUpload, FaFileExcel, FaChartBar, FaStickyNote, FaUsers, FaExclamationTriangle, FaDatabase, FaRedoAlt, FaLightbulb } from 'react-icons/fa';
+import { FaCheckCircle, FaTimesCircle, FaInfoCircle, FaHourglassHalf, FaUpload, FaFileExcel } from 'react-icons/fa';
 
 export default function Upload() {
   const { setRows, db, dbInitialized } = useApp();

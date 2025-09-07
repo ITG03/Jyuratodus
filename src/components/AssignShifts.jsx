@@ -4,7 +4,7 @@ import { useApp } from '../context';
 import db from '../database';
 
 export default function AssignShifts() {
-  const { rows, peopleToShift, setPeopleToShift, distinctPeople } = useApp();
+  const { peopleToShift, setPeopleToShift, distinctPeople } = useApp();
   const [shifts, setShifts] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [newShiftName, setNewShiftName] = useState('');
