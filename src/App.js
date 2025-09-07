@@ -1,6 +1,6 @@
 import './App.css';
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Layout from './components/Layout';
 import Upload from './components/Upload';
 import Insights from './components/Insights';
@@ -60,19 +60,20 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<Layout theme={theme} toggleTheme={toggleTheme} />}> 
-          <Route path="/" element={<Navigate to="/upload" replace />} />
-          <Route path="/upload" element={<Upload />} />
-          <Route path="/analytics" element={<Insights />} />
-          <Route path="/management" element={<ManagementHub />} />
-          <Route path="/import" element={<DataImport />} />
-          <Route path="/export" element={<DataExport />} />
-          <Route path="*" element={<Navigate to="/upload" replace />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    // Use createBrowserRouter + RouterProvider and pass components as children to Layout
+    // to avoid relying on named exports that may not be present in this environment.
+    <RouterProvider
+      router={createBrowserRouter([
+        { path: '/', element: <Layout theme={theme} toggleTheme={toggleTheme}><Upload /></Layout> },
+        { path: '/upload', element: <Layout theme={theme} toggleTheme={toggleTheme}><Upload /></Layout> },
+        { path: '/analytics', element: <Layout theme={theme} toggleTheme={toggleTheme}><Insights /></Layout> },
+        { path: '/management', element: <Layout theme={theme} toggleTheme={toggleTheme}><ManagementHub /></Layout> },
+        { path: '/import', element: <Layout theme={theme} toggleTheme={toggleTheme}><DataImport /></Layout> },
+        { path: '/export', element: <Layout theme={theme} toggleTheme={toggleTheme}><DataExport /></Layout> },
+        // fallback - render Upload inside Layout for unknown routes
+        { path: '*', element: <Layout theme={theme} toggleTheme={toggleTheme}><Upload /></Layout> },
+      ])}
+    />
   );
 }
 

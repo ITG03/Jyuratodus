@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Navbar, Container, Button, Offcanvas } from 'react-bootstrap';
-import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { FaMoon, FaSun, FaBars, FaTruck } from 'react-icons/fa';
 
-export default function Layout({ theme, toggleTheme }) {
+export default function Layout({ theme, toggleTheme, children }) {
   const [showMobileNav, setShowMobileNav] = useState(false);
 
   const closeNav = () => setShowMobileNav(false);
@@ -45,7 +44,7 @@ export default function Layout({ theme, toggleTheme }) {
           </Container>
         </Navbar>
         <div className="content px-3 py-3">
-          <Outlet />
+          {children}
         </div>
       </div>
     </div>

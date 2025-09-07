@@ -1,10 +1,12 @@
 import React from 'react';
 import { Nav } from 'react-bootstrap';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { FaTruck, FaUpload, FaChartLine, FaUsers, FaFileImport, FaDownload, FaCogs } from 'react-icons/fa';
 
 export default function Sidebar({ onNavigate }) {
-  const { pathname } = useLocation();
+  // react-router's useLocation might not be exported in older/newer versions used here.
+  // Fallback to window.location.pathname to preserve highlighting behavior without changing functionality.
+  const pathname = (typeof window !== 'undefined' && window.location && window.location.pathname) || '/';
 
   const items = [
     { to: '/upload', label: 'Upload', icon: <FaUpload /> },
