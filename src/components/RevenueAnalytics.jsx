@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Card, Row, Col, Alert, Badge } from 'react-bootstrap';
+import { Card, Row, Col, Alert, Badge, Button } from 'react-bootstrap';
+import { FaMoneyBillWave, FaChartBar, FaUsers, FaClock, FaFileDownload, FaChartLine } from 'react-icons/fa';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -304,7 +305,7 @@ export default function RevenueAnalytics({ excelData, people, groups, shifts }) 
   if (!excelData || excelData.length === 0) {
     return (
       <Alert variant="info" className="text-center">
-        <Alert.Heading>📊 Revenue Analytics</Alert.Heading>
+        <Alert.Heading><FaChartBar className="me-2" /> Revenue Analytics</Alert.Heading>
         <p>Upload Excel data to view revenue analytics and statistics.</p>
       </Alert>
     );
@@ -312,12 +313,12 @@ export default function RevenueAnalytics({ excelData, people, groups, shifts }) 
 
   return (
     <div className="revenue-analytics">
-      <h2 className="mb-4">💰 Revenue Analytics Dashboard</h2>
+      <h2 className="mb-4"><FaMoneyBillWave className="me-2" /> Revenue Analytics Dashboard</h2>
       
       {/* Summary Cards */}
       <Row className="mb-4">
         <Col md={3}>
-          <Card className="text-center bg-success text-white">
+          <Card className="text-center bg-success text-white modern-card">
             <Card.Body>
               <Card.Title>Total Revenue</Card.Title>
               <Card.Text className="h3">{formatCurrency(stats.totalRevenue)}</Card.Text>
@@ -325,7 +326,7 @@ export default function RevenueAnalytics({ excelData, people, groups, shifts }) 
           </Card>
         </Col>
         <Col md={3}>
-          <Card className="text-center bg-info text-white">
+          <Card className="text-center bg-info text-white modern-card">
             <Card.Body>
               <Card.Title>Total Transactions</Card.Title>
               <Card.Text className="h3">{formatNumber(stats.totalTransactions)}</Card.Text>
@@ -333,7 +334,7 @@ export default function RevenueAnalytics({ excelData, people, groups, shifts }) 
           </Card>
         </Col>
         <Col md={3}>
-          <Card className="text-center bg-warning text-white">
+          <Card className="text-center bg-warning text-white modern-card">
             <Card.Body>
               <Card.Title>Average Revenue</Card.Title>
               <Card.Text className="h3">{formatCurrency(stats.averageRevenue)}</Card.Text>
@@ -341,7 +342,7 @@ export default function RevenueAnalytics({ excelData, people, groups, shifts }) 
           </Card>
         </Col>
         <Col md={3}>
-          <Card className="text-center bg-danger text-white">
+          <Card className="text-center bg-danger text-white modern-card">
             <Card.Body>
               <Card.Title>Total Fines</Card.Title>
               <Card.Text className="h3">{formatCurrency(stats.totalFines)}</Card.Text>
@@ -353,10 +354,10 @@ export default function RevenueAnalytics({ excelData, people, groups, shifts }) 
       {/* Charts Row 1 */}
       <Row className="mb-4">
         <Col lg={8}>
-          <Card>
+          <Card className="modern-card">
             <Card.Header>
               <div className="d-flex justify-content-between align-items-center">
-                <Card.Title className="mb-0">📈 Revenue by Person</Card.Title>
+                <Card.Title className="mb-0"><FaChartBar className="me-1" /> Revenue by Person</Card.Title>
                 <div>
                   <Badge onClick={() => setChartMode('top')} bg={chartMode === 'top' ? 'primary' : 'light'} style={{ cursor: 'pointer', marginRight: 6 }}>Top</Badge>
                   <Badge onClick={() => setChartMode('bottom')} bg={chartMode === 'bottom' ? 'primary' : 'light'} style={{ cursor: 'pointer', marginRight: 6 }}>Bottom</Badge>
@@ -390,9 +391,9 @@ export default function RevenueAnalytics({ excelData, people, groups, shifts }) 
           </Card>
         </Col>
         <Col lg={4}>
-          <Card>
+          <Card className="modern-card">
             <Card.Header>
-              <Card.Title className="mb-0">👥 Revenue by Group</Card.Title>
+              <Card.Title className="mb-0"><FaUsers className="me-1" /> Revenue by Group</Card.Title>
             </Card.Header>
             <Card.Body>
               {stats.revenueByGroup.length > 0 ? (
@@ -408,9 +409,9 @@ export default function RevenueAnalytics({ excelData, people, groups, shifts }) 
       {/* Charts Row 2 */}
       <Row className="mb-4">
         <Col lg={4}>
-          <Card>
+          <Card className="modern-card">
             <Card.Header>
-              <Card.Title className="mb-0">🕒 Revenue by Shift</Card.Title>
+              <Card.Title className="mb-0"><FaClock className="me-1" /> Revenue by Shift</Card.Title>
             </Card.Header>
             <Card.Body>
               {stats.revenueByShift.length > 0 ? (
@@ -422,7 +423,7 @@ export default function RevenueAnalytics({ excelData, people, groups, shifts }) 
           </Card>
         </Col>
         <Col lg={8}>
-          <Card>
+          <Card className="modern-card">
             <Card.Header>
               <Card.Title className="mb-0">💸 Revenue Breakdown by Type</Card.Title>
             </Card.Header>
@@ -457,9 +458,9 @@ export default function RevenueAnalytics({ excelData, people, groups, shifts }) 
       {stats.monthlyRevenue.length > 0 && (
         <Row className="mb-4">
           <Col>
-            <Card>
+            <Card className="modern-card">
               <Card.Header>
-                <Card.Title className="mb-0">📅 Monthly Revenue Trend</Card.Title>
+                <Card.Title className="mb-0"><FaChartLine className="me-1" /> Monthly Revenue Trend</Card.Title>
               </Card.Header>
               <Card.Body>
                 <Line data={monthlyRevenueChart} options={chartOptions} />
@@ -472,9 +473,9 @@ export default function RevenueAnalytics({ excelData, people, groups, shifts }) 
       {/* Revenue Rankings */}
       <Row className="mb-4">
         <Col lg={4}>
-          <Card>
+          <Card className="modern-card">
             <Card.Header>
-              <Card.Title className="mb-0">🏆 Top Performers (People)</Card.Title>
+              <Card.Title className="mb-0">Top Performers (People)</Card.Title>
             </Card.Header>
             <Card.Body style={{ maxHeight: '400px', overflowY: 'auto' }}>
               {stats.revenueByPerson.slice(0, 10).map((person, index) => (
@@ -492,9 +493,9 @@ export default function RevenueAnalytics({ excelData, people, groups, shifts }) 
           </Card>
         </Col>
         <Col lg={4}>
-          <Card>
+          <Card className="modern-card">
             <Card.Header>
-              <Card.Title className="mb-0">👥 Group Performance</Card.Title>
+              <Card.Title className="mb-0"><FaUsers className="me-1" /> Group Performance</Card.Title>
             </Card.Header>
             <Card.Body>
               {stats.revenueByGroup.map((group, index) => (
@@ -510,9 +511,9 @@ export default function RevenueAnalytics({ excelData, people, groups, shifts }) 
           </Card>
         </Col>
         <Col lg={4}>
-          <Card>
+          <Card className="modern-card">
             <Card.Header>
-              <Card.Title className="mb-0">🕒 Shift Performance</Card.Title>
+              <Card.Title className="mb-0"><FaClock className="me-1" /> Shift Performance</Card.Title>
             </Card.Header>
             <Card.Body>
               {stats.revenueByShift.map((shift, index) => (

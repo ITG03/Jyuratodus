@@ -11,62 +11,46 @@ export function AppProvider({ children }) {
   const [peopleToShift, setPeopleToShift] = useState({}); // { person: shiftName }
   const [dbInitialized, setDbInitialized] = useState(false);
 
-  // Initialize database
+  // Global filters for analytics pages
+  const [filters, setFilters] = useState({
+    start: '', // ISO date (YYYY-MM-DD)
+    end: '',   // ISO date (YYYY-MM-DD)
+    site: '',
+    group: '',
+    shift: '',
+    person: ''
+  });
+
+  // Initialize backend API
   useEffect(() => {
     async function initDatabase() {
       try {
         await db.init();
         setDbInitialized(true);
-        console.log('Database initialized successfully');
+        console.log('API ready');
       } catch (error) {
-        console.error('Failed to initialize database:', error);
+        console.error('Failed to connect to API:', error);
       }
     }
     initDatabase();
   }, []);
 
-  // Load session data from localStorage (fallback) and database
+  // Load assignments from backend or localStorage fallback
   useEffect(() => {
     if (!dbInitialized) return;
-    
-    async function loadData() {
+    (async () => {
       try {
-        // Try to load from database first
         const people = await db.getAllPeople();
-        if (people.length > 0) {
-          // Build assignments from database
-          const groupAssignments = {};
-          const shiftAssignments = {};
-          
-          people.forEach(person => {
-            if (person.group) {
-              groupAssignments[person.name] = person.group;
-            }
-            if (person.shift) {
-              shiftAssignments[person.name] = person.shift;
-            }
-          });
-          
-          setPeopleToGroup(groupAssignments);
-          setPeopleToShift(shiftAssignments);
-          console.log('Loaded assignments from database');
-        } else {
-          // Fallback to localStorage
-          try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (raw) {
-              const saved = JSON.parse(raw);
-              setRows(saved.rows || []);
-              setPeopleToGroup(saved.peopleToGroup || {});
-              setPeopleToShift(saved.peopleToShift || {});
-            }
-          } catch (e) {
-            console.warn('Failed to load session data from localStorage:', e);
-          }
-        }
+        const groupAssignments = {};
+        const shiftAssignments = {};
+        people.forEach(person => {
+          if (person.group) groupAssignments[person.name] = person.group;
+          if (person.shift) shiftAssignments[person.name] = person.shift;
+        });
+        setPeopleToGroup(groupAssignments);
+        setPeopleToShift(shiftAssignments);
       } catch (error) {
-        console.error('Failed to load data from database:', error);
-        // Fallback to localStorage
+        console.error('Failed to load people from API:', error);
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
           if (raw) {
@@ -79,92 +63,58 @@ export function AppProvider({ children }) {
           console.warn('Failed to load session data from localStorage:', e);
         }
       }
-    }
-    
-    loadData();
+    })();
   }, [dbInitialized]);
 
-  // Save session data to localStorage (fallback)
+  // Save session data to localStorage (fallback only)
   useEffect(() => {
-    if (!dbInitialized) return;
-    
     const payload = { rows, peopleToGroup, peopleToShift };
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    } catch (e) {
-      console.warn('Failed to save session data:', e);
-    }
-  }, [rows, peopleToGroup, peopleToShift, dbInitialized]);
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch {}
+  }, [rows, peopleToGroup, peopleToShift]);
 
-  // Save Excel data to database when rows change
-  useEffect(() => {
-    if (!dbInitialized || rows.length === 0) return;
-    
-    async function saveToDatabase() {
-      try {
-        await db.saveExcelData(rows);
-        console.log('Excel data saved to database');
-      } catch (error) {
-        console.error('Failed to save Excel data to database:', error);
-      }
-    }
-    saveToDatabase();
-  }, [rows, dbInitialized]);
-
-  // Sync group assignments with database
+  // Sync group assignments with backend
   const syncGroupAssignments = async (assignments) => {
     if (!dbInitialized) return;
-    
     try {
+      const people = await db.getAllPeople();
       for (const [person, group] of Object.entries(assignments)) {
-        if (group) {
-          // Find the person in database and update their group
-          const people = await db.getAllPeople();
-          const personRecord = people.find(p => p.name === person);
-          if (personRecord) {
-            await db.updatePerson(personRecord.id, { group });
-          } else {
-            // Person doesn't exist in database, create them
-            await db.addPersonIfNotExists(person, group, '');
-          }
+        if (!person) continue;
+        const personRecord = people.find(p => p.name === person);
+        if (personRecord) {
+          await db.updatePerson(personRecord.id, { group: group || '' });
+        } else if (group) {
+          await db.addPersonIfNotExists(person, group, '');
         }
       }
-      console.log('Group assignments synced with database');
     } catch (error) {
       console.error('Failed to sync group assignments:', error);
     }
   };
 
-  // Sync shift assignments with database
+  // Sync shift assignments with backend
   const syncShiftAssignments = async (assignments) => {
     if (!dbInitialized) return;
-    
     try {
+      const people = await db.getAllPeople();
       for (const [person, shift] of Object.entries(assignments)) {
-        if (shift) {
-          // Find the person in database and update their shift
-          const people = await db.getAllPeople();
-          const personRecord = people.find(p => p.name === person);
-          if (personRecord) {
-            await db.updatePerson(personRecord.id, { shift });
-          } else {
-            // Person doesn't exist in database, create them
-            await db.addPersonIfNotExists(person, '', shift);
-          }
+        if (!person) continue;
+        const personRecord = people.find(p => p.name === person);
+        if (personRecord) {
+          await db.updatePerson(personRecord.id, { shift: shift || '' });
+        } else if (shift) {
+          await db.addPersonIfNotExists(person, '', shift);
         }
       }
-      console.log('Shift assignments synced with database');
     } catch (error) {
       console.error('Failed to sync shift assignments:', error);
     }
   };
 
-  // Wrapper functions for setting assignments that also sync with database
+  // Wrapper setters + sync
   const setPeopleToGroupWithSync = async (assignments) => {
     setPeopleToGroup(assignments);
     await syncGroupAssignments(assignments);
   };
-
   const setPeopleToShiftWithSync = async (assignments) => {
     setPeopleToShift(assignments);
     await syncShiftAssignments(assignments);
@@ -172,9 +122,7 @@ export function AppProvider({ children }) {
 
   const distinctPeople = useMemo(() => {
     const set = new Set();
-    rows.forEach(r => {
-      if (r.person) set.add(String(r.person).trim());
-    });
+    rows.forEach(r => { if (r.person) set.add(String(r.person).trim()); });
     return Array.from(set).sort();
   }, [rows]);
 
@@ -190,6 +138,8 @@ export function AppProvider({ children }) {
     dbInitialized,
     syncGroupAssignments,
     syncShiftAssignments,
+    filters,
+    setFilters,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Col, Row, Form, Alert, Table, Modal } from 'react-bootstrap';
+import { Button, Col, Row, Form, Alert, Table, Modal, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import db from '../database';
 
 export default function PeopleManagement() {
@@ -104,7 +104,8 @@ export default function PeopleManagement() {
   async function handleDeletePerson(id) {
     if (window.confirm('Are you sure you want to delete this person?')) {
       try {
-        await db.deletePerson(id);
+        // backend now supports delete
+        await fetch((process.env.REACT_APP_API_URL || 'http://localhost:4000') + `/refs/people/${id}`, { method: 'DELETE' });
         await loadData();
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 3000);
@@ -156,16 +157,16 @@ export default function PeopleManagement() {
             variant="outline-secondary"
             size="sm"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="collapse-btn"
+            className="collapse-btn btn-with-icon"
           >
             {isCollapsed ? (
               <>
-                <i className="bi bi-chevron-down me-1"></i>
+                <i className="btn-icon bi bi-chevron-down"></i>
                 Show All ({people.length})
               </>
             ) : (
               <>
-                <i className="bi bi-chevron-up me-1"></i>
+                <i className="btn-icon bi bi-chevron-up"></i>
                 Collapse
               </>
             )}
@@ -187,29 +188,33 @@ export default function PeopleManagement() {
 
       <Row className="g-3 mb-4">
         <Col xs={12} md="auto">
-          <Button className="btn-primary" onClick={() => handleShowModal()}>
+          <Button className="btn-primary btn-with-icon" onClick={() => handleShowModal()}>
+            <i className="btn-icon bi bi-person-plus"></i>
             Add New Person
           </Button>
         </Col>
         <Col xs={12} md="auto">
-          <Button variant="outline-secondary" onClick={addDefaultGroups}>
+          <Button variant="outline-secondary" className="btn-with-icon" onClick={addDefaultGroups}>
+            <i className="btn-icon bi bi-people"></i>
             Add Default Groups
           </Button>
         </Col>
         <Col xs={12} md="auto">
-          <Button variant="outline-secondary" onClick={addDefaultShifts}>
+          <Button variant="outline-secondary" className="btn-with-icon" onClick={addDefaultShifts}>
+            <i className="btn-icon bi bi-clock-history"></i>
             Add Default Shifts
           </Button>
         </Col>
         <Col xs={12} md="auto">
-          <Button variant="outline-primary" onClick={loadData}>
+          <Button variant="outline-primary" className="btn-with-icon" onClick={loadData}>
+            <i className="btn-icon bi bi-arrow-repeat"></i>
             Refresh Data
           </Button>
         </Col>
       </Row>
 
       <div className="table-responsive">
-        <Table className="table">
+        <Table className="table table-compact">
           <thead>
             <tr>
               <th>Name</th>
@@ -235,21 +240,26 @@ export default function PeopleManagement() {
                 </td>
                 <td>{new Date(person.createdAt).toLocaleDateString()}</td>
                 <td>
-                  <Button 
-                    size="sm" 
-                    variant="outline-primary" 
-                    className="me-2"
-                    onClick={() => handleShowModal(person)}
-                  >
-                    Edit
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline-danger"
-                    onClick={() => handleDeletePerson(person.id)}
-                  >
-                    Delete
-                  </Button>
+                  <OverlayTrigger overlay={<Tooltip>Edit</Tooltip>} placement="top">
+                    <Button 
+                      size="sm" 
+                      variant="outline-primary" 
+                      className="me-2 btn-icon-only"
+                      onClick={() => handleShowModal(person)}
+                    >
+                      <i className="bi bi-pencil"></i>
+                    </Button>
+                  </OverlayTrigger>
+                  <OverlayTrigger overlay={<Tooltip>Delete</Tooltip>} placement="top">
+                    <Button 
+                      size="sm" 
+                      variant="outline-danger"
+                      className="btn-icon-only"
+                      onClick={() => handleDeletePerson(person.id)}
+                    >
+                      <i className="bi bi-trash"></i>
+                    </Button>
+                  </OverlayTrigger>
                 </td>
               </tr>
             ))}

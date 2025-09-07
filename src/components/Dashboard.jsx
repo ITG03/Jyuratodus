@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Tabs, Tab, Nav } from 'react-bootstrap';
+import { FaUpload, FaChartLine, FaUsers, FaFileImport, FaDownload, FaClock, FaBuilding, FaClipboard, FaUser } from 'react-icons/fa';
 import Upload from './Upload';
 import PeopleManagement from './PeopleManagement';
 import ManageGroups from './ManageGroups';
@@ -18,36 +19,36 @@ export default function Dashboard({ activeKey: controlledActiveKey, onSelect: co
   const tabConfig = [
     { 
       key: 'upload', 
-      title: '📊 Upload', 
-      icon: '📊',
+      title: 'Upload', 
+      icon: <FaUpload className="tab-icon" />, 
       component: <Upload />,
       description: 'Upload and process Excel files'
     },
     { 
       key: 'analytics', 
-      title: '📈 Analytics', 
-      icon: '📈',
+      title: 'Analytics', 
+      icon: <FaChartLine className="tab-icon" />, 
       component: <Insights />,
       description: 'View data insights and reports'
     },
     { 
       key: 'management', 
-      title: '👥 Management', 
-      icon: '👥',
+      title: 'Management', 
+      icon: <FaUsers className="tab-icon" />, 
       component: null,
       description: 'Manage people, groups and shifts'
     },
     { 
       key: 'import', 
-      title: '📥 Import', 
-      icon: '📥',
+      title: 'Import', 
+      icon: <FaFileImport className="tab-icon" />, 
       component: <DataImport />,
       description: 'Import data from external sources'
     },
     { 
       key: 'export', 
-      title: '📤 Export', 
-      icon: '📤',
+      title: 'Export', 
+      icon: <FaDownload className="tab-icon" />, 
       component: <DataExport />,
       description: 'Export data and reports'
     }
@@ -56,22 +57,22 @@ export default function Dashboard({ activeKey: controlledActiveKey, onSelect: co
   const managementTabs = [
     {
       key: 'shifts',
-      title: '⏰ Shifts',
-      icon: '⏰',
+      title: 'Shifts',
+      icon: <FaClock className="subtab-icon" />,
       component: <AssignShifts />,
       description: 'Assign and manage work shifts'
     },
     {
       key: 'groups',
-      title: '🏢 Groups',
-      icon: '🏢',
+      title: 'Groups',
+      icon: <FaBuilding className="subtab-icon" />,
       component: <ManageGroups />,
       description: 'Organize people into groups'
     },
     {
       key: 'assignments',
-      title: '📋 Assignments',
-      icon: '📋',
+      title: 'Assignments',
+      icon: <FaClipboard className="subtab-icon" />,
       component: <AssignShifts />,
       description: 'View all assignments'
     }
@@ -89,7 +90,7 @@ export default function Dashboard({ activeKey: controlledActiveKey, onSelect: co
               title={
                 <span className="tab-title-modern">
                   <span className="tab-icon">{tab.icon}</span>
-                  <span className="tab-text">{tab.title.replace(tab.icon + ' ', '')}</span>
+                  <span className="tab-text">{tab.title}</span>
                 </span>
               }
             >
@@ -97,7 +98,7 @@ export default function Dashboard({ activeKey: controlledActiveKey, onSelect: co
                 <div className="management-container">
                   <div className="container-header">
                     <h2 className="section-title-modern">
-                      <span className="title-icon">👥</span>
+                      <span className="title-icon"><FaUsers /></span>
                       Team Management Hub
                     </h2>
                     <p className="section-description">Organize your workforce efficiently with groups, shifts, and assignments</p>
@@ -121,7 +122,7 @@ export default function Dashboard({ activeKey: controlledActiveKey, onSelect: co
                             <div className="card-header-modern">
                               <h3 className="card-title">
                                 <span className="card-title-icon">{subTab.icon}</span>
-                                {subTab.title.replace(subTab.icon + ' ', '')}
+                                {subTab.title}
                               </h3>
                               <p className="card-description">{subTab.description}</p>
                             </div>
@@ -139,7 +140,7 @@ export default function Dashboard({ activeKey: controlledActiveKey, onSelect: co
                     <div className="modern-card content-card">
                       <div className="card-header-modern">
                         <h3 className="card-title">
-                          <span className="card-title-icon">👤</span>
+                          <span className="card-title-icon"><FaUser /></span>
                           People Management
                         </h3>
                         <p className="card-description">Add, edit, and organize team members</p>
@@ -155,7 +156,7 @@ export default function Dashboard({ activeKey: controlledActiveKey, onSelect: co
                   <div className="card-header-modern">
                     <h2 className="card-title">
                       <span className="card-title-icon">{tab.icon}</span>
-                      {tab.title.replace(tab.icon + ' ', '')}
+                      {tab.title}
                     </h2>
                     <p className="card-description">{tab.description}</p>
                   </div>

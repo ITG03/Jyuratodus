@@ -6,6 +6,8 @@ import { toPng } from 'html-to-image';
 import { saveAs } from 'file-saver';
 import { useApp } from '../context';
 import RevenueAnalytics from './RevenueAnalytics';
+import FinanceAnalytics from './FinanceAnalytics';
+import { FaChartBar, FaChartLine, FaExclamationTriangle, FaInfoCircle, FaDownload } from 'react-icons/fa';
 
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend, LineElement, PointElement);
 
@@ -100,16 +102,16 @@ export default function Insights() {
             variant="outline-secondary"
             size="sm"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="collapse-btn"
+            className="collapse-btn btn-with-icon"
           >
             {isCollapsed ? (
               <>
-                <span className="me-1">▼</span>
+                <i className="btn-icon bi bi-chevron-down"></i>
                 Show All Data
               </>
             ) : (
               <>
-                <span className="me-1">▲</span>
+                <i className="btn-icon bi bi-chevron-up"></i>
                 Collapse
               </>
             )}
@@ -118,7 +120,17 @@ export default function Insights() {
       </div>
 
       <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-4">
-        <Tab eventKey="overview" title={<><span className="me-2">📊</span>Overview</>}>
+        <Tab eventKey="finance" title={<><span className="me-2"><FaChartBar /></span>Finance</>}>
+          <div className="mt-3">
+            {/* Finance section: revenue by person, group, shift powered by backend */}
+            <div className="modern-card content-card">
+              <div className="card-content">
+                <FinanceAnalytics />
+              </div>
+            </div>
+          </div>
+        </Tab>
+        <Tab eventKey="overview" title={<><span className="me-2"><FaChartBar /></span>Overview</>}>
           {/* Key Performance Metrics */}
           <div className="metrics-grid mb-4">
             <div className="metric-card">
@@ -172,7 +184,7 @@ export default function Insights() {
               <h5 className="mb-3">Performance Alerts</h5>
               {analytics.alerts.map((alert, idx) => (
                 <Alert key={idx} variant={alert.type} className="d-flex align-items-center">
-                  <span className="me-2">{alert.type === 'danger' ? '⚠️' : alert.type === 'warning' ? '📊' : 'ℹ️'}</span>
+                  <span className="me-2">{alert.type === 'danger' ? <FaExclamationTriangle /> : alert.type === 'warning' ? <FaChartBar /> : <FaInfoCircle />}</span>
                   <div>
                     <strong>{alert.title}</strong>
                     <div>{alert.message}</div>
@@ -185,11 +197,12 @@ export default function Insights() {
           {/* Main Charts */}
           <Row className="g-4">
             <Col lg={6}>
-              <Card className="h-100">
+              <Card className="h-100 modern-card">
                 <Card.Header className="d-flex justify-content-between align-items-center">
                   <h5 className="mb-0">Performance by Person</h5>
-                  <Button size="sm" variant="outline-primary" onClick={() => downloadPng(chartRefs.perPerson.current, 'performance-by-person.png')}>
-                    📥 Export
+                  <Button size="sm" variant="outline-primary" className="btn-with-icon" onClick={() => downloadPng(chartRefs.perPerson.current, 'performance-by-person.png')}>
+                    <i className="btn-icon bi bi-download"></i>
+                    Export
                   </Button>
                 </Card.Header>
                 <Card.Body>
@@ -215,11 +228,12 @@ export default function Insights() {
             </Col>
 
             <Col lg={6}>
-              <Card className="h-100">
+              <Card className="h-100 modern-card">
                 <Card.Header className="d-flex justify-content-between align-items-center">
                   <h5 className="mb-0">Group Distribution</h5>
-                  <Button size="sm" variant="outline-primary" onClick={() => downloadPng(chartRefs.perGroup.current, 'group-distribution.png')}>
-                    📥 Export
+                  <Button size="sm" variant="outline-primary" className="btn-with-icon" onClick={() => downloadPng(chartRefs.perGroup.current, 'group-distribution.png')}>
+                    <i className="btn-icon bi bi-download"></i>
+                    Export
                   </Button>
                 </Card.Header>
                 <Card.Body>
@@ -248,10 +262,10 @@ export default function Insights() {
           </Row>
         </Tab>
 
-        <Tab eventKey="detailed" title={<><span className="me-2">📈</span>Detailed Analysis</>}>
+        <Tab eventKey="detailed" title={<><span className="me-2"><FaChartLine /></span>Detailed Analysis</>}>
           <Row className="g-4">
             <Col lg={8}>
-              <Card>
+              <Card className="modern-card">
                 <Card.Header>
                   <h5 className="mb-0">Shift Performance Analysis</h5>
                 </Card.Header>
@@ -294,7 +308,7 @@ export default function Insights() {
             </Col>
 
             <Col lg={4}>
-              <Card className="mb-3">
+              <Card className="mb-3 modern-card">
                 <Card.Header>
                   <h6 className="mb-0">Performance Metrics</h6>
                 </Card.Header>
@@ -340,7 +354,7 @@ export default function Insights() {
                 </Card.Body>
               </Card>
 
-              <Card>
+              <Card className="modern-card">
                 <Card.Header>
                   <h6 className="mb-0">Top Performers</h6>
                 </Card.Header>

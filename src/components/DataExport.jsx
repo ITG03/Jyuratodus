@@ -202,10 +202,11 @@ export default function DataExport() {
         </Col>
         <Col xs={12} md="auto">
           <Button 
-            className="btn-primary" 
+            className="btn-primary btn-with-icon" 
             onClick={exportData}
             disabled={!dbInitialized || exporting}
           >
+            <span className="btn-icon bi bi-download"></span>
             {exporting ? 'Exporting...' : 'Export Data'}
           </Button>
         </Col>

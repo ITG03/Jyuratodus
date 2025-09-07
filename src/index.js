@@ -5,6 +5,9 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { AppProvider } from './context';
+import { initChartThemeObserver } from './chartTheme';
+
+initChartThemeObserver();
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

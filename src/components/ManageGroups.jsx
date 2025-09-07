@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Col, Row, Form, Alert, Table, Modal } from 'react-bootstrap';
+import { Button, Col, Row, Form, Alert, Table, Modal, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useApp } from '../context';
 import db from '../database';
 
@@ -142,12 +142,14 @@ export default function ManageGroups() {
 
       <Row className="g-3 mb-4">
         <Col xs={12} md="auto">
-          <Button className="btn-primary" onClick={() => setShowModal(true)}>
+          <Button className="btn-primary btn-with-icon" onClick={() => setShowModal(true)}>
+            <i className="btn-icon bi bi-plus-lg"></i>
             Create New Group
           </Button>
         </Col>
         <Col xs={12} md="auto">
-          <Button variant="outline-primary" onClick={loadGroups}>
+          <Button variant="outline-primary" className="btn-with-icon" onClick={loadGroups}>
+            <i className="btn-icon bi bi-arrow-repeat"></i>
             Refresh Groups
           </Button>
         </Col>
@@ -164,14 +166,17 @@ export default function ManageGroups() {
                   {peopleByGroup[group.name]?.length || 0}
                 </div>
                 <div className="metric-label">{group.name}</div>
-                <Button
-                  size="sm"
-                  variant="outline-danger"
-                  className="mt-2"
-                  onClick={() => handleDeleteGroup(group.id, group.name)}
-                >
-                  Delete
-                </Button>
+                <OverlayTrigger overlay={<Tooltip>Delete group</Tooltip>} placement="top">
+                  <Button
+                    size="sm"
+                    variant="outline-danger"
+                    className="mt-2 btn-icon-only"
+                    onClick={() => handleDeleteGroup(group.id, group.name)}
+                    title="Delete group"
+                  >
+                    <i className="bi bi-trash"></i>
+                  </Button>
+                </OverlayTrigger>
               </div>
             </Col>
           ))}
@@ -195,7 +200,7 @@ export default function ManageGroups() {
 
       {/* Group Assignments Table */}
       <div className="table-responsive">
-        <Table className="table">
+        <Table className="table table-compact">
           <thead>
             <tr>
               <th>Person Name</th>

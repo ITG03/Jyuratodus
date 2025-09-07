@@ -1,74 +1,62 @@
-<<<<<<< HEAD
-# Getting Started with Create React App
+# Weighbridge Analytics App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Project Overview
+React-based weighbridge analytics application with an Express + SQLite backend. Supports Excel uploads, people/group/shift management, and revenue analytics (by person, site, and shift).
 
-## Available Scripts
+## Tech Stack
+- **Frontend**: React 19, React Bootstrap, Chart.js
+- **Backend**: Node/Express, better-sqlite3 (SQLite)
+- **Parsing**: xlsx
 
-In the project directory, you can run:
+## Prerequisites
+- Node.js 18+ and npm
 
-### `npm start`
+## Getting Started
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 1) Backend
+1. Open a terminal in `server/`
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the API (default port 4000):
+   ```bash
+   npm start
+   ```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 2) Frontend
+1. Open a terminal in the project root
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. (Optional) Create `.env` in the project root to point to the API:
+   ```bash
+   REACT_APP_API_URL=http://localhost:4000
+   ```
+4. Start the app:
+   ```bash
+   npm start
+   ```
 
-### `npm test`
+## API Endpoints (Brief)
+- **Analytics**: `GET /analytics/overview`, `GET /analytics/by-person`, `GET /analytics/by-site`, `GET /analytics/by-shift`
+- **Records**: `POST /records/bulk` (bulk insert parsed Excel rows)
+- **References**: People/Groups/Shifts CRUD, Sites/Users read-only under `/refs/*`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Excel Import
+- Frontend parses `.xlsx` using `xlsx` and posts normalized rows to `POST /records/bulk`.
+- Revenue totals are computed from individual fine fields if `total_revenue` is not provided.
 
-### `npm run build`
+## Utilities
+- HTML aggregation script (optional helper):
+  ```bash
+  node scripts/aggregate_html.js "30.06.2025 TO 31.07.2025.html" > scripts/agg_out.json
+  ```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Notes
+- Database file is stored at `server/data/weighbridge.db`.
+- For production, configure `REACT_APP_API_URL` accordingly.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-=======
- 
->>>>>>>
+## License
+See `LICENSE` for details.

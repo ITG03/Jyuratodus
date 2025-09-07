@@ -99,17 +99,20 @@ export default function DataImport() {
         </Col>
         <Col xs={12} md="auto">
           <Button 
-            className="btn-primary me-2" 
+            className="btn-primary me-2 btn-with-icon" 
             onClick={importData}
             disabled={!importFile || importing}
           >
+            <span className="btn-icon bi bi-upload"></span>
             {importing ? 'Importing...' : 'Import Data'}
           </Button>
           <Button 
             variant="outline-danger" 
+            className="btn-with-icon"
             onClick={clearData}
             disabled={importing}
           >
+            <span className="btn-icon bi bi-trash"></span>
             Clear All Data
           </Button>
         </Col>

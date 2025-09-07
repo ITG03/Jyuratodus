@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button, Form, Alert, ProgressBar } from 'react-bootstrap';
 import { useApp } from '../context';
 import { parseExcelFile } from '../excel';
+import { FaCheckCircle, FaTimesCircle, FaInfoCircle, FaHourglassHalf, FaUpload, FaFileExcel, FaChartBar, FaStickyNote, FaUsers, FaExclamationTriangle, FaDatabase, FaRedoAlt, FaLightbulb } from 'react-icons/fa';
 
 export default function Upload() {
   const { setRows, db, dbInitialized } = useApp();
@@ -40,68 +41,30 @@ export default function Upload() {
     setUploadProgress(0);
     
     try {
-      // Simulate progress
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => Math.min(prev + 20, 90));
       }, 200);
 
-      // Parse Excel file
       const rows = await parseExcelFile(file);
       setRows(rows);
-      
-      // Save to database
+
+      // Send to backend (bulk insert) and upsert people
       await db.saveExcelData(rows);
-      
-      // Extract unique people names and add them to the database (no duplicates)
+
       const uniquePeople = [...new Set(rows.map(row => row.person).filter(Boolean))];
-      
       for (const personName of uniquePeople) {
-        try {
-          await db.addPersonIfNotExists(personName, '', '');
-          console.log(`Person ${personName} processed (added or updated if existing)`);
-        } catch (error) {
-          console.error(`Failed to process person ${personName}:`, error);
-        }
+        try { await db.addPersonIfNotExists(personName, '', ''); } catch {}
       }
 
-      // Get duplicate names summary for user information
       const duplicateSummaryData = await db.getDuplicateNamesSummary(rows);
       setDuplicateSummary(duplicateSummaryData);
-      if (duplicateSummaryData.hasDuplicates) {
-        console.log('Duplicate names found in Excel:', duplicateSummaryData.duplicateNames);
-      }
-
-      // Load existing assignments from database to sync with state
-      try {
-        const people = await db.getAllPeople();
-        const groupAssignments = {};
-        const shiftAssignments = {};
-        
-        people.forEach(person => {
-          if (person.group) {
-            groupAssignments[person.name] = person.group;
-          }
-          if (person.shift) {
-            shiftAssignments[person.name] = person.shift;
-          }
-        });
-        
-        // Update context state with database assignments
-        // Note: We need to call the context functions directly to avoid infinite loops
-        // This will be handled by the context's useEffect that watches for dbInitialized
-      } catch (error) {
-        console.error('Failed to load existing assignments:', error);
-      }
 
       clearInterval(progressInterval);
       setUploadProgress(100);
-      
       setShowSuccess(true);
       setFile(null);
-      if (document.querySelector('input[type="file"]')) {
-        document.querySelector('input[type="file"]').value = '';
-      }
-      
+      const input = document.querySelector('input[type="file"]');
+      if (input) input.value = '';
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (error) {
       console.error('Upload failed:', error);
@@ -120,7 +83,7 @@ export default function Upload() {
         {showSuccess && (
           <Alert variant="success" dismissible onClose={() => setShowSuccess(false)} className="status-alert success-alert">
             <div className="alert-content">
-              <span className="alert-icon">✅</span>
+              <span className="alert-icon"><FaCheckCircle /></span>
               <div>
                 <strong>Success!</strong> File uploaded successfully! 
                 {dbInitialized ? ' Data saved to database.' : ' Data saved to session.'}
@@ -132,7 +95,7 @@ export default function Upload() {
         {showError && (
           <Alert variant="danger" dismissible onClose={() => setShowError(false)} className="status-alert error-alert">
             <div className="alert-content">
-              <span className="alert-icon">❌</span>
+              <span className="alert-icon"><FaTimesCircle /></span>
               <div>
                 <strong>Error:</strong> {errorMessage}
               </div>
@@ -143,7 +106,7 @@ export default function Upload() {
         {!dbInitialized && (
           <Alert variant="info" className="status-alert info-alert">
             <div className="alert-content">
-              <span className="alert-icon">⏳</span>
+              <span className="alert-icon"><FaHourglassHalf /></span>
               <div>
                 <strong>Initializing...</strong> Please wait while the database initializes.
               </div>
@@ -156,7 +119,7 @@ export default function Upload() {
       <div className="upload-card modern-card mb-4">
         <div className="card-header-icon">
           <div className="icon-circle">
-            <span className="upload-icon">📎</span>
+            <span className="upload-icon"><FaUpload /></span>
           </div>
           <div className="header-content">
             <h3 className="card-title-upload">File Upload</h3>
@@ -167,7 +130,7 @@ export default function Upload() {
         <div className="upload-form">
           <Form.Group className="file-input-group">
             <Form.Label className="file-label">
-              <span className="label-icon">📁</span>
+              <span className="label-icon"><FaFileExcel /></span>
               Select Excel File
             </Form.Label>
             <div className="file-input-wrapper">
@@ -179,7 +142,7 @@ export default function Upload() {
                 className="file-input-modern"
               />
               <div className="file-input-help">
-                <span className="help-icon">ℹ️</span>
+                <span className="help-icon"><FaInfoCircle /></span>
                 Supported formats: .xlsx, .xls
               </div>
             </div>
@@ -188,7 +151,7 @@ export default function Upload() {
           {uploading && (
             <div className="upload-progress-container">
               <div className="progress-header">
-                <span className="progress-icon">⏳</span>
+                <span className="progress-icon"><FaHourglassHalf /></span>
                 <span className="progress-label">
                   {uploadProgress < 100 ? 'Processing file...' : 'Upload complete!'}
                 </span>
@@ -204,20 +167,20 @@ export default function Upload() {
 
           <div className="upload-actions">
             <Button
-              className="btn-upload-modern"
+              className="btn-upload-modern btn-with-icon"
               onClick={handleUpload}
               disabled={!file || uploading || !dbInitialized}
               size="lg"
             >
               <span className="btn-icon">
-                {uploading ? '⏳' : '🚀'}
+                {uploading ? <FaHourglassHalf /> : <FaUpload />}
               </span>
               {uploading ? 'Processing...' : 'Upload & Process'}
             </Button>
             
             {file && !uploading && (
               <div className="selected-file-info">
-                <span className="file-icon">📄</span>
+                <span className="file-icon"><FaFileExcel /></span>
                 <span className="file-name">{file.name}</span>
                 <span className="file-size">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
               </div>

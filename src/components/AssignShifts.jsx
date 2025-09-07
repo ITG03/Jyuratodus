@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Col, Row, Form, Alert, Table, Modal } from 'react-bootstrap';
+import { Button, Col, Row, Form, Alert, Table, Modal, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useApp } from '../context';
 import db from '../database';
 
@@ -111,16 +111,16 @@ export default function AssignShifts() {
             variant="outline-secondary"
             size="sm"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="collapse-btn"
+            className="collapse-btn btn-with-icon"
           >
             {isCollapsed ? (
               <>
-                <i className="bi bi-chevron-down me-1"></i>
+                <i className="btn-icon bi bi-chevron-down"></i>
                 Show All ({shifts.length} shifts, {distinctPeople.length} people)
               </>
             ) : (
               <>
-                <i className="bi bi-chevron-up me-1"></i>
+                <i className="btn-icon bi bi-chevron-up"></i>
                 Collapse
               </>
             )}
@@ -142,12 +142,14 @@ export default function AssignShifts() {
 
       <Row className="g-3 mb-4">
         <Col xs={12} md="auto">
-          <Button className="btn-primary" onClick={() => setShowModal(true)}>
+          <Button className="btn-primary btn-with-icon" onClick={() => setShowModal(true)}>
+            <i className="btn-icon bi bi-plus-lg"></i>
             Create New Shift
           </Button>
         </Col>
         <Col xs={12} md="auto">
-          <Button variant="outline-primary" onClick={loadShifts}>
+          <Button variant="outline-primary" className="btn-with-icon" onClick={loadShifts}>
+            <i className="btn-icon bi bi-arrow-repeat"></i>
             Refresh Shifts
           </Button>
         </Col>
@@ -164,14 +166,17 @@ export default function AssignShifts() {
                   {peopleByShift[shift.name]?.length || 0}
                 </div>
                 <div className="metric-label">{shift.name}</div>
-                <Button
-                  size="sm"
-                  variant="outline-danger"
-                  className="mt-2"
-                  onClick={() => handleDeleteShift(shift.id, shift.name)}
-                >
-                  Delete
-                </Button>
+                <OverlayTrigger overlay={<Tooltip>Delete shift</Tooltip>} placement="top">
+                  <Button
+                    size="sm"
+                    variant="outline-danger"
+                    className="mt-2 btn-icon-only"
+                    onClick={() => handleDeleteShift(shift.id, shift.name)}
+                    title="Delete shift"
+                  >
+                    <i className="bi bi-trash"></i>
+                  </Button>
+                </OverlayTrigger>
               </div>
             </Col>
           ))}
@@ -195,7 +200,7 @@ export default function AssignShifts() {
 
       {/* Shift Assignments Table */}
       <div className="table-responsive">
-        <Table className="table">
+        <Table className="table table-compact">
           <thead>
             <tr>
               <th>Person Name</th>
