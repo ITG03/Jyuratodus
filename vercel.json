@@ -1,9 +1,5 @@
 {
   "version": 2,
-  "builds": [
-    { "src": "api/**/*.js", "use": "@vercel/node" },
-    { "src": "vercel/api/**/*.js", "use": "@vercel/node" }
-  ],
   "functions": {
     "api/**/*.js": { "runtime": "nodejs20.x" },
     "vercel/api/**/*.js": { "runtime": "nodejs20.x" }
@@ -14,5 +10,8 @@
     { "src": "/api/refs/people/(.*)", "dest": "api/refs/people/$1.js" },
     { "src": "/api/refs/(.*)", "dest": "api/refs/$1.js" },
     { "src": "/api/(.*)", "dest": "api/$1.js" }
+  ],
+  "rewrites": [
+    { "source": "/((?!api).*)", "destination": "/" }
   ]
 }

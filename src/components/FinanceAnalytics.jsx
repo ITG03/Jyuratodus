@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Card, Row, Col, Alert } from 'react-bootstrap';
+import { Card, Row, Col, Alert, Table } from 'react-bootstrap';
 import { Bar, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import { FaMoneyBillWave } from 'react-icons/fa';
@@ -132,6 +132,102 @@ export default function FinanceAnalytics() {
                 }}
                 options={pieOpts}
               />
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Summary Tables */}
+      <Row className="g-4 mt-1">
+        <Col lg={4}>
+          <Card className="modern-card">
+            <Card.Header>
+              <Card.Title className="mb-0">Summary: Per Person</Card.Title>
+            </Card.Header>
+            <Card.Body className="p-0">
+              <div className="table-responsive">
+                <Table striped hover size="sm" className="mb-0">
+                  <thead>
+                    <tr>
+                      <th>Person</th>
+                      <th className="text-end">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.arrPerson.map((r, i) => (
+                      <tr key={i}>
+                        <td>{r.name}</td>
+                        <td className="text-end">{formatCurrency(r.revenue)}</td>
+                      </tr>
+                    ))}
+                    {data.arrPerson.length === 0 && (
+                      <tr><td colSpan={2} className="text-center text-muted">No data</td></tr>
+                    )}
+                  </tbody>
+                </Table>
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+
+        <Col lg={4}>
+          <Card className="modern-card">
+            <Card.Header>
+              <Card.Title className="mb-0">Summary: Per Group</Card.Title>
+            </Card.Header>
+            <Card.Body className="p-0">
+              <div className="table-responsive">
+                <Table striped hover size="sm" className="mb-0">
+                  <thead>
+                    <tr>
+                      <th>Group</th>
+                      <th className="text-end">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.arrGroup.map((r, i) => (
+                      <tr key={i}>
+                        <td>{r.name}</td>
+                        <td className="text-end">{formatCurrency(r.revenue)}</td>
+                      </tr>
+                    ))}
+                    {data.arrGroup.length === 0 && (
+                      <tr><td colSpan={2} className="text-center text-muted">No data</td></tr>
+                    )}
+                  </tbody>
+                </Table>
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+
+        <Col lg={4}>
+          <Card className="modern-card">
+            <Card.Header>
+              <Card.Title className="mb-0">Summary: Per Shift</Card.Title>
+            </Card.Header>
+            <Card.Body className="p-0">
+              <div className="table-responsive">
+                <Table striped hover size="sm" className="mb-0">
+                  <thead>
+                    <tr>
+                      <th>Shift</th>
+                      <th className="text-end">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.arrShift.map((r, i) => (
+                      <tr key={i}>
+                        <td>{r.name}</td>
+                        <td className="text-end">{formatCurrency(r.revenue)}</td>
+                      </tr>
+                    ))}
+                    {data.arrShift.length === 0 && (
+                      <tr><td colSpan={2} className="text-center text-muted">No data</td></tr>
+                    )}
+                  </tbody>
+                </Table>
+              </div>
             </Card.Body>
           </Card>
         </Col>
