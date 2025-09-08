@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Navbar, Container, Button, Offcanvas } from 'react-bootstrap';
 import Sidebar from './Sidebar';
-import { FaMoon, FaSun, FaBars } from 'react-icons/fa';
+import { FaMoon, FaSun, FaBars, FaTruck } from 'react-icons/fa';
 
 export default function Layout({ theme, toggleTheme, children }) {
   const [showMobileNav, setShowMobileNav] = useState(false);

@@ -1,5 +1,5 @@
 // Simple frontend API for the Weighbridge backend
-const BASE_URL = process.env.REACT_APP_API_URL || '/api';
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 
 async function http(path, options = {}) {
   const res = await fetch(BASE_URL + path, {

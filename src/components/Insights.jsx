@@ -1,13 +1,13 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { Button, Col, Row, Table, Card, Tabs, Tab, Badge, ProgressBar, Alert } from 'react-bootstrap';
-import { Bar, Doughnut, Line } from 'react-chartjs-2';
+import { Bar, Doughnut, Line, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend, LineElement, PointElement } from 'chart.js';
 import { toPng } from 'html-to-image';
 import { saveAs } from 'file-saver';
 import { useApp } from '../context';
-// import RevenueAnalytics from './RevenueAnalytics';
+import RevenueAnalytics from './RevenueAnalytics';
 import FinanceAnalytics from './FinanceAnalytics';
-import { FaChartBar, FaChartLine, FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
+import { FaChartBar, FaChartLine, FaExclamationTriangle, FaInfoCircle, FaDownload } from 'react-icons/fa';
 
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend, LineElement, PointElement);
 

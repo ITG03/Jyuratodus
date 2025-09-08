@@ -1,6 +1,5 @@
-// Backend API adapter that keeps the same interface as the former IndexedDB wrapper
-// It proxies calls to the Node/Express server while preserving method names used across the app.
-import api from './api';
+// Supabase-backed database adapter keeping the same interface used by the app
+import { supabase } from './supabaseClient';
 
 function normalizeIso(dateStr) {
   if (!dateStr) return '';
@@ -13,58 +12,78 @@ function normalizeIso(dateStr) {
   }
 }
 
-class WeighbridgeAPI {
-  constructor() {
-    this.ready = false;
-  }
+class SupabaseWeighbridgeDB {
+  constructor() { this.ready = false; }
 
   async init() {
-    try {
-      await api.overview().catch(() => api.users.list()); // ping any endpoint
-      this.ready = true;
-    } catch (e) {
-      this.ready = false;
-      throw e;
-    }
+    const { error } = await supabase.from('groups').select('id').limit(1);
+    if (error) throw error;
+    this.ready = true;
+    return true;
   }
 
-  // People operations
+  // People
   async addPerson(name, group = '', shift = '') {
-    const res = await api.people.create(name, group || undefined, shift || undefined);
-    return res.id;
+    const { data, error } = await supabase
+      .from('people')
+      .insert({ name: String(name).trim(), group: group || '', shift: shift || '' })
+      .select('id')
+      .single();
+    if (error) throw error;
+    return data.id;
   }
 
   async updatePerson(id, updates) {
     const payload = {};
-    if ('group' in updates) payload.group = updates.group || null;
-    if ('shift' in updates) payload.shift = updates.shift || null;
-    await api.people.update(id, payload);
+    if ('group' in updates) payload.group = updates.group || '';
+    if ('shift' in updates) payload.shift = updates.shift || '';
+    const { error } = await supabase.from('people').update(payload).eq('id', id);
+    if (error) throw error;
     return id;
   }
 
   async deletePerson(id) {
-    // Not used currently; could add delete endpoint if needed
-    throw new Error('deletePerson not supported by API');
+    const { error } = await supabase.from('people').delete().eq('id', id);
+    if (error) throw error;
+    return true;
   }
 
   async getAllPeople() {
-    // Return shape: { id, name, group, shift, ... }
-    return api.people.list();
+    const { data, error } = await supabase
+      .from('people')
+      .select('id,name,group,shift,created_at,updated_at')
+      .order('name', { ascending: true });
+    if (error) throw error;
+    return data || [];
   }
 
   async getPeopleByGroup(group) {
-    const all = await this.getAllPeople();
-    return all.filter(p => (p.group || '') === group);
+    const { data, error } = await supabase
+      .from('people')
+      .select('id,name,group,shift')
+      .eq('group', group || '');
+    if (error) throw error;
+    return data || [];
   }
 
   async getPeopleByShift(shift) {
-    const all = await this.getAllPeople();
-    return all.filter(p => (p.shift || '') === shift);
+    const { data, error } = await supabase
+      .from('people')
+      .select('id,name,group,shift')
+      .eq('shift', shift || '');
+    if (error) throw error;
+    return data || [];
   }
 
   async findPersonByName(name) {
-    const people = await this.getAllPeople();
-    return people.find(p => p.name.toLowerCase() === String(name).toLowerCase()) || null;
+    const n = String(name || '').trim();
+    if (!n) return null;
+    const { data, error } = await supabase
+      .from('people')
+      .select('id,name,group,shift')
+      .ilike('name', n);
+    if (error) throw error;
+    return (data || []).find(p => p.name.toLowerCase() === n.toLowerCase()) || null;
   }
 
   async addPersonIfNotExists(name, group = '', shift = '') {
@@ -84,8 +103,8 @@ class WeighbridgeAPI {
     const duplicates = [];
     (excelRows || []).forEach(row => {
       if (row.person) {
-        const name = String(row.person).trim();
-        nameCounts[name] = (nameCounts[name] || 0) + 1;
+        const nm = String(row.person).trim();
+        nameCounts[nm] = (nameCounts[nm] || 0) + 1;
       }
     });
     Object.entries(nameCounts).forEach(([name, count]) => {
@@ -99,60 +118,142 @@ class WeighbridgeAPI {
     };
   }
 
-  // Groups operations
+  // Groups
   async addGroup(name) {
-    const res = await api.groups.create(name);
-    return res.id;
+    const { data, error } = await supabase
+      .from('groups')
+      .insert({ name: String(name).trim() })
+      .select('id')
+      .single();
+    if (error) throw error;
+    return data.id;
   }
-  async getAllGroups() { return api.groups.list(); }
-  async deleteGroup(id) { await api.groups.delete(id); }
 
-  // Shifts operations
-  async addShift(name) { const res = await api.shifts.create(name); return res.id; }
-  async getAllShifts() { return api.shifts.list(); }
-  async deleteShift(id) { await api.shifts.delete(id); }
+  async getAllGroups() {
+    const { data, error } = await supabase
+      .from('groups')
+      .select('id,name,created_at')
+      .order('name', { ascending: true });
+    if (error) throw error;
+    return data || [];
+  }
 
-  // Excel data operations -> bulk insert to backend
+  async deleteGroup(id) {
+    const { data: g, error: ge } = await supabase
+      .from('groups')
+      .select('name')
+      .eq('id', id)
+      .single();
+    if (ge) throw ge;
+    const groupName = g?.name || '';
+    if (groupName) {
+      await supabase.from('people').update({ group: '' }).eq('group', groupName);
+    }
+    const { error } = await supabase.from('groups').delete().eq('id', id);
+    if (error) throw error;
+    return true;
+  }
+
+  // Shifts
+  async addShift(name) {
+    const { data, error } = await supabase
+      .from('shifts')
+      .insert({ name: String(name).trim() })
+      .select('id')
+      .single();
+    if (error) throw error;
+    return data.id;
+  }
+
+  async getAllShifts() {
+    const { data, error } = await supabase
+      .from('shifts')
+      .select('id,name,created_at')
+      .order('name', { ascending: true });
+    if (error) throw error;
+    return data || [];
+  }
+
+  async deleteShift(id) {
+    const { data: s, error: se } = await supabase
+      .from('shifts')
+      .select('name')
+      .eq('id', id)
+      .single();
+    if (se) throw se;
+    const shiftName = s?.name || '';
+    if (shiftName) {
+      await supabase.from('people').update({ shift: '' }).eq('shift', shiftName);
+    }
+    const { error } = await supabase.from('shifts').delete().eq('id', id);
+    if (error) throw error;
+    return true;
+  }
+
+  // Excel rows
   async saveExcelData(data) {
     const rows = (data || []).map(r => ({
       w_datetime: normalizeIso(r.date),
-      site: r.site || r.siteName || undefined, // may be undefined in Excel rows
-      user_full_name: r.person || undefined,   // treat the Excel person as officer name
-      person_name: r.person || undefined,      // also set as person for mapping
-      amount_due: r.amountDue ?? undefined,
-      gvm_fine: r.gvmFine ?? undefined,
-      d1_fine: r.d1Fine ?? undefined,
-      d2_fine: r.d2Fine ?? undefined,
-      d3_fine: r.d3Fine ?? undefined,
-      d4_fine: r.d4Fine ?? undefined,
-      awkward_load_fine: r.awkwardLoadFine ?? undefined,
-      amount_due_driver: r.amountDueDriver ?? undefined,
-      total_revenue: r.totalRevenue ?? undefined,
+      site: r.site || r.siteName || null,
+      user_full_name: r.person || null,
+      person_name: r.person || null,
+      amount_due: r.amountDue ?? null,
+      gvm_fine: r.gvmFine ?? null,
+      d1_fine: r.d1Fine ?? null,
+      d2_fine: r.d2Fine ?? null,
+      d3_fine: r.d3Fine ?? null,
+      d4_fine: r.d4Fine ?? null,
+      awkward_load_fine: r.awkwardLoadFine ?? null,
+      amount_due_driver: r.amountDueDriver ?? null,
+      total_revenue: r.totalRevenue ?? null,
     }));
-    const payload = { source_filename: 'excel-upload', rows };
-    return api.bulkInsert(payload);
+    if (!rows.length) return true;
+    const { error } = await supabase.from('weighbridge_records').insert(rows);
+    if (error) throw error;
+    return true;
   }
 
   async getLatestExcelData() {
-    // Not needed by UI currently; return null to maintain signature
-    return null;
+    const { data, error } = await supabase
+      .from('weighbridge_records')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(1000);
+    if (error) throw error;
+    return data || [];
   }
 
-  // Utility methods (not supported in backend; no-ops to preserve interface)
   async clearAllData() {
-    throw new Error('clearAllData not supported by API');
+    await supabase.from('weighbridge_records').delete().neq('id', 0);
+    await supabase.from('people').delete().neq('id', 0);
+    await supabase.from('groups').delete().neq('id', 0);
+    await supabase.from('shifts').delete().neq('id', 0);
+    return true;
   }
 
   async exportAllData() {
-    const [people, groups, shifts, overview] = await Promise.all([
-      this.getAllPeople(), this.getAllGroups(), this.getAllShifts(), api.overview()
+    const [people, groups, shifts] = await Promise.all([
+      this.getAllPeople(), this.getAllGroups(), this.getAllShifts()
     ]);
+    const { data: totalsData, error } = await supabase
+      .from('weighbridge_records')
+      .select('total_revenue');
+    if (error) throw error;
+    const totalRevenue = (totalsData || []).reduce((a, r) => a + (Number(r.total_revenue) || 0), 0);
+    const { count } = await supabase
+      .from('weighbridge_records')
+      .select('*', { count: 'exact', head: true });
+    const overview = {
+      totalRecords: count ?? 0,
+      totalRevenue,
+      generatedAt: new Date().toISOString(),
+    };
     return {
-      metadata: { exportedAt: new Date().toISOString(), version: '1.0', database: 'WeighbridgeAPI' },
+      metadata: { exportedAt: new Date().toISOString(), version: '1.0', database: 'Supabase' },
       people, groups, shifts, excelData: { summary: overview }
     };
   }
 }
 
-const db = new WeighbridgeAPI();
+const db = new SupabaseWeighbridgeDB();
 export default db;
