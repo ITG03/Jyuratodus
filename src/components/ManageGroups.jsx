@@ -4,7 +4,7 @@ import { useApp } from '../context';
 import db from '../database';
 
 export default function ManageGroups() {
-  const { rows, peopleToGroup, setPeopleToGroup, distinctPeople } = useApp();
+  const { peopleToGroup, setPeopleToGroup, distinctPeople } = useApp();
   const [groups, setGroups] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');

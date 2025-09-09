@@ -1,7 +1,7 @@
 import React from 'react';
 import { Nav } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { FaTruck, FaUpload, FaChartLine, FaUsers, FaFileImport, FaDownload, FaCogs } from 'react-icons/fa';
+import { FaUpload, FaChartLine, FaUsers, FaFileImport, FaDownload, FaCogs } from 'react-icons/fa';
 
 export default function Sidebar({ onNavigate }) {
   // react-router's useLocation might not be exported in older/newer versions used here.

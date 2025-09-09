@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Card, Row, Col, Alert, Badge, Button } from 'react-bootstrap';
-import { FaMoneyBillWave, FaChartBar, FaUsers, FaClock, FaFileDownload, FaChartLine } from 'react-icons/fa';
+import { Card, Row, Col, Alert, Badge } from 'react-bootstrap';
+import { FaMoneyBillWave, FaChartBar, FaUsers, FaClock, FaChartLine } from 'react-icons/fa';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -144,16 +144,25 @@ export default function RevenueAnalytics({ excelData, people, groups, shifts }) 
   const scatterPoints = [];
   excelData.forEach(row => {
     const revenue = row.totalRevenue || 0;
-    // try common weight fields
-    let weight = row.gvmWeight || row.GVMWeight || row['GVM Weight'] || row._raw && (row._raw['GVM Weight'] || row._raw['GVM Weight ']) || row._raw && row._raw.gvm_weight;
+    // try common weight fields (wrapped in parentheses to clarify precedence)
+    let weight = (
+      row.gvmWeight ||
+      row.GVMWeight ||
+      row['GVM Weight'] ||
+      (row._raw && (row._raw['GVM Weight'] || row._raw['GVM Weight '])) ||
+      (row._raw && row._raw.gvm_weight)
+    );
     if (weight === undefined) weight = row.gvm || row.weight || 0;
     // normalize
     if (typeof weight === 'string') {
-      weight = Number(weight.replace(/[,\s]/g, ''));
+      weight = Number(weight.replace(/[ ,\s]/g, ''));
     }
     if (!Number.isFinite(weight)) weight = 0;
-    // Only push meaningful points
-    if (revenue !== 0 || weight !== 0) scatterPoints.push({ x: weight, y: revenue, label: row.person || row._raw && (row._raw['User Full Name'] || row._raw['User'] ) || 'Unknown' });
+    // Only push meaningful points (with explicit parentheses)
+    if (revenue !== 0 || weight !== 0) {
+      const label = (row.person) || ((row._raw && (row._raw['User Full Name'] || row._raw['User'])) ) || 'Unknown';
+      scatterPoints.push({ x: weight, y: revenue, label });
+    }
   });
 
   const scatterData = {

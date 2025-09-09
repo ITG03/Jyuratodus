@@ -1,1 +1,0 @@
-module.exports = require('../../../vercel/api/refs/people/[id]');
