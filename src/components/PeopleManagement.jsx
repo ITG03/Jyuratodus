@@ -104,14 +104,14 @@ export default function PeopleManagement() {
   async function handleDeletePerson(id) {
     if (window.confirm('Are you sure you want to delete this person?')) {
       try {
-        // backend now supports delete
-        await fetch((process.env.REACT_APP_API_URL || 'http://localhost:4000') + `/refs/people/${id}`, { method: 'DELETE' });
+        // Use Supabase directly
+        await db.deletePerson(id);
         await loadData();
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 3000);
       } catch (error) {
         console.error('Failed to delete person:', error);
-        setErrorMessage('Failed to delete person');
+        setErrorMessage(error?.message || 'Failed to delete person');
         setShowError(true);
       }
     }
